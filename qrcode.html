@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>御13 QR Code</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #07030E;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem;
+    }
+    #final-canvas {
+      border-radius: 20px;
+      box-shadow: 0 0 80px rgba(212,175,55,0.25), 0 0 160px rgba(91,33,182,0.18);
+      /* 螢幕顯示寬度，高度自動等比 */
+      width: min(500px, 90vw);
+      height: auto;
+      display: block;
+    }
+    #download {
+      padding: 14px 48px;
+      background: linear-gradient(135deg, #B8960C, #F0C830);
+      color: #07030E;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Noto Serif TC', serif;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #download:hover { opacity: 0.82; }
+    #qr-hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="qr-hidden"></div>
+  <canvas id="final-canvas"></canvas>
+  <button id="download">下載 PNG（高解析度）</button>
+
+  <script>
+    const SITE_URL = 'https://yu13.pages.dev/#rsv';
+
+    // 所有數值基準 × S 倍 → 高解析度輸出
+    const S = 2;
+    const W = 640 * S;   // 1280
+    const H = 832 * S;   // 1664
+    const QR_SIZE = 360 * S;  // 720
+    const QR_X = (W - QR_SIZE) / 2;
+    const QR_Y = 260 * S;
+
+    const canvas = document.getElementById('final-canvas');
+    canvas.width = W;
+    canvas.height = H;
+
+    new QRCode(document.getElementById('qr-hidden'), {
+      text: SITE_URL,
+      width: QR_SIZE,
+      height: QR_SIZE,
+      colorDark: '#07030E',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+    }
+
+    function drawCorner(ctx, x, y, dx, dy, size) {
+      ctx.beginPath();
+      ctx.moveTo(x, y + dy * size);
+      ctx.lineTo(x, y);
+      ctx.lineTo(x + dx * size, y);
+      ctx.stroke();
+    }
+
+    function drawCard(qrCanvas, logoImg) {
+      const ctx = canvas.getContext('2d');
+
+      // 背景
+      ctx.fillStyle = '#07030E';
+      ctx.fillRect(0, 0, W, H);
+
+      // 紫色光暈（左上）
+      const g1 = ctx.createRadialGradient(200, 240, 0, 200, 240, 640);
+      g1.addColorStop(0, 'rgba(91,33,182,0.28)');
+      g1.addColorStop(1, 'transparent');
+      ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
+
+      // 金色光暈（右下）
+      const g2 = ctx.createRadialGradient(1080, 1400, 0, 1080, 1400, 520);
+      g2.addColorStop(0, 'rgba(212,175,55,0.18)');
+      g2.addColorStop(1, 'transparent');
+      ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
+
+      // 外框
+      ctx.save();
+      ctx.shadowColor = 'rgba(212,175,55,0.5)';
+      ctx.shadowBlur = 48;
+      ctx.strokeStyle = '#D4AF37';
+      ctx.lineWidth = 3;
+      roundRect(ctx, 56, 56, W - 112, H - 112, 28);
+      ctx.stroke();
+      ctx.restore();
+
+      // 四角 L 裝飾
+      const cSize = 72, cPad = 88;
+      ctx.strokeStyle = '#D4AF37';
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'square';
+      drawCorner(ctx, cPad, cPad,         1,  1, cSize);
+      drawCorner(ctx, W - cPad, cPad,    -1,  1, cSize);
+      drawCorner(ctx, cPad, H - cPad,     1, -1, cSize);
+      drawCorner(ctx, W - cPad, H - cPad,-1, -1, cSize);
+
+      // 「御」大字
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(212,175,55,0.65)';
+      ctx.shadowBlur = 36;
+      ctx.font = `700 ${192}px "Noto Serif TC", serif`;
+      const gText = ctx.createLinearGradient(W/2 - 160, 0, W/2 + 160, 0);
+      gText.addColorStop(0, '#D4AF37');
+      gText.addColorStop(1, '#F0C830');
+      ctx.fillStyle = gText;
+      ctx.fillText('御', W / 2 - 144, 336);
+
+      // 「13」紫色
+      ctx.shadowColor = 'rgba(168,85,247,0.8)';
+      ctx.shadowBlur = 32;
+      ctx.font = `700 ${104}px "Cinzel", serif`;
+      ctx.fillStyle = '#A855F7';
+      ctx.fillText('13', W / 2 + 136, 296);
+
+      // 副標
+      ctx.shadowBlur = 0;
+      ctx.font = `500 ${44}px "Noto Serif TC", serif`;
+      ctx.fillStyle = 'rgba(212,175,55,0.65)';
+      ctx.fillText('餐　酒　館', W / 2, 416);
+
+      // 分隔線漸層
+      const dg = ctx.createLinearGradient(160, 0, W - 160, 0);
+      dg.addColorStop(0, 'transparent');
+      dg.addColorStop(0.3, 'rgba(212,175,55,0.5)');
+      dg.addColorStop(0.7, 'rgba(212,175,55,0.5)');
+      dg.addColorStop(1, 'transparent');
+
+      // 上分隔線
+      ctx.strokeStyle = dg;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(160, 464); ctx.lineTo(W - 160, 464);
+      ctx.stroke();
+
+      // QR 白底
+      ctx.save();
+      ctx.shadowColor = 'rgba(212,175,55,0.3)';
+      ctx.shadowBlur = 40;
+      ctx.fillStyle = '#ffffff';
+      roundRect(ctx, QR_X - 16, QR_Y - 16, QR_SIZE + 32, QR_SIZE + 32, 24);
+      ctx.fill();
+      ctx.restore();
+
+      // QR code
+      ctx.drawImage(qrCanvas, QR_X, QR_Y, QR_SIZE, QR_SIZE);
+
+      // Logo 白底 + logo
+      const logoSize = 152;
+      const logoX = (W - logoSize) / 2;
+      const logoY = QR_Y + (QR_SIZE - logoSize) / 2;
+      ctx.fillStyle = '#ffffff';
+      roundRect(ctx, logoX - 14, logoY - 14, logoSize + 28, logoSize + 28, 18);
+      ctx.fill();
+      ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+
+      // 下分隔線
+      ctx.strokeStyle = dg;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const lineY = QR_Y + QR_SIZE + 80;
+      ctx.moveTo(160, lineY); ctx.lineTo(W - 160, lineY);
+      ctx.stroke();
+
+      // 掃描文字
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(212,175,55,0.6)';
+      ctx.shadowBlur = 16;
+      ctx.font = `700 ${48}px "Noto Serif TC", serif`;
+      ctx.fillStyle = '#F0C830';
+      ctx.fillText('掃描進入官網', W / 2, QR_Y + QR_SIZE + 148);
+
+      ctx.shadowBlur = 0;
+      ctx.font = `400 ${32}px monospace`;
+      ctx.fillStyle = 'rgba(240,235,224,0.65)';
+      ctx.fillText('yu13.pages.dev/#rsv', W / 2, QR_Y + QR_SIZE + 208);
+    }
+
+    setTimeout(() => {
+      const qrCanvas = document.querySelector('#qr-hidden canvas');
+      const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="32" fill="#07030E"/>
+  <rect x="4" y="4" width="184" height="184" rx="28" fill="none" stroke="#D4AF37" stroke-width="3" opacity="0.6"/>
+  <text x="96" y="115" text-anchor="middle" font-family="serif" font-size="88" font-weight="700" fill="url(#g)">御</text>
+  <text x="144" y="80" text-anchor="middle" font-family="sans-serif" font-size="32" font-weight="700" fill="#A855F7">13</text>
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#F0C830"/>
+    </linearGradient>
+  </defs>
+</svg>`;
+      const logo = new Image();
+      logo.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+      logo.onload = () => drawCard(qrCanvas, logo);
+    }, 350);
+
+    document.getElementById('download').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = '御13-qrcode.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  </script>
+</body>
+</html>
