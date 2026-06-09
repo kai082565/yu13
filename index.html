@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- v3 -->
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
@@ -8,7 +9,7 @@
   <meta property="og:title" content="御13餐酒館｜高雄沉浸式餐酒館" />
   <meta property="og:description" content="特色調酒・精緻料理・5D沉浸體驗，聚餐慶生約會包場首選。高雄市復興二路260號13樓。" />
   <meta property="og:type" content="website" />
-  <meta name="google-site-verification" content="N84YfZ7cnKoUecAs2_GoXzvSC3RkHxQio8303QG8M_g" />
+  <meta name="google-site-verification" content="StjV170AMjoVxBKsRLyrmyP-dS3LF6xzchz8D_dYVmg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&family=Cinzel:wght@400;600;700&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -371,9 +372,30 @@
     .ag{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center}
     .avis{position:relative}
     .aframe{
-      position:relative;aspect-ratio:3/4;border:1px solid var(--border);border-radius:4px;
+      position:relative;aspect-ratio:3/4;
+      border:1px solid var(--border);border-radius:4px;
       overflow:hidden;background:var(--bg2);
     }
+    .slide-btn{
+      position:absolute;top:50%;transform:translateY(-50%);
+      background:rgba(7,3,14,.65);border:1px solid rgba(212,175,55,.45);
+      color:var(--gm);width:38px;height:38px;border-radius:50%;
+      cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center;
+      z-index:5;transition:all .3s;padding:0;line-height:1;
+    }
+    .slide-btn:hover{background:rgba(212,175,55,.2);box-shadow:0 0 12px rgba(212,175,55,.3)}
+    .slide-prev{left:.8rem}
+    .slide-next{right:.8rem}
+    .slide-dots{
+      position:absolute;bottom:.9rem;left:50%;transform:translateX(-50%);
+      display:flex;gap:.5rem;z-index:5;
+    }
+    .sdot{
+      width:7px;height:7px;border-radius:50%;
+      background:rgba(245,240,232,.35);cursor:pointer;transition:all .3s;
+    }
+    .sdot.on{background:var(--gm);width:20px;border-radius:4px;box-shadow:0 0 6px var(--gm)}
+
     .aframe::after{
       content:'';position:absolute;inset:0;z-index:2;
       background:linear-gradient(135deg,rgba(91,33,182,.25),transparent 55%),
@@ -583,12 +605,12 @@
     .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-bottom:1.4rem}
     .fg{display:flex;flex-direction:column;gap:.45rem}
     .fg.full{grid-column:1/-1}
-    .flbl{font-size:.78rem;color:var(--t3);letter-spacing:.15em}
+    .flbl{font-size:.92rem;color:var(--t2);letter-spacing:.1em}
     .finput,.fsel,.ftxt{
       background:rgba(91,33,182,.08);border:1px solid var(--border);border-radius:3px;
-      padding:.72rem .95rem;color:var(--cream);
-      font-family:'Noto Serif TC',serif;font-size:.88rem;
-      letter-spacing:.05em;transition:all .3s;outline:none;width:100%;
+      padding:.85rem 1rem;color:var(--cream);
+      font-family:'Noto Sans TC',sans-serif;font-size:1rem;
+      letter-spacing:.04em;transition:all .3s;outline:none;width:100%;
     }
     .finput:focus,.fsel:focus,.ftxt:focus{
       border-color:var(--pl);background:rgba(91,33,182,.14);
@@ -596,6 +618,11 @@
     }
     .fsel option{background:var(--bg2)}
     .ftxt{resize:none;height:95px}
+    input[type="date"]::-webkit-calendar-picker-indicator{
+      filter:invert(1) sepia(1) saturate(3) hue-rotate(5deg);
+      opacity:.85;cursor:pointer;width:20px;height:20px;
+    }
+    .date-note{font-size:.78rem;color:rgba(212,175,55,.6);letter-spacing:.04em;margin-top:.3rem;display:block}
     .fsub{
       width:100%;padding:1rem;margin-top:.4rem;
       background:linear-gradient(135deg,var(--pm),var(--pb));
@@ -797,6 +824,34 @@
       .hcorner{display:none}
       .o1,.o4{display:none}
     }
+    /* ── BOOKING TYPE RADIO ── */
+    .radio-group{display:flex;flex-direction:column;gap:.65rem}
+    .radio-card{
+      display:flex;align-items:center;gap:.85rem;
+      background:rgba(91,33,182,.08);border:1px solid var(--border);
+      border-radius:3px;padding:.85rem 1rem;cursor:pointer;
+      transition:all .3s;user-select:none;
+    }
+    .radio-card input[type="radio"]{display:none}
+    .radio-card:active{background:rgba(91,33,182,.14)}
+    .radio-card.checked{border-color:var(--gm);background:rgba(212,175,55,.07)}
+    .radio-indicator{
+      width:18px;height:18px;border-radius:50%;
+      border:2px solid var(--border);flex-shrink:0;
+      transition:all .3s;position:relative;
+    }
+    .radio-card.checked .radio-indicator{
+      border-color:var(--gm);
+      background:radial-gradient(circle,var(--gm) 42%,transparent 44%);
+    }
+    .radio-text{display:flex;flex-direction:column;gap:.18rem}
+    .radio-main{font-size:.88rem;color:var(--cream);letter-spacing:.06em}
+    .radio-hint{font-size:.8rem;color:var(--t2);letter-spacing:.04em}
+    .cadre-field{
+      margin-top:.7rem;overflow:hidden;
+      max-height:0;transition:max-height .35s ease,opacity .3s ease;opacity:0;
+    }
+    .cadre-field.open{max-height:80px;opacity:1}
   </style>
 </head>
 <body>
@@ -1100,36 +1155,62 @@
     <p class="sdesc">預約您的尊貴體驗，讓我們為您打造一個難忘的感官饗宴</p>
   </div>
   <div class="rform reveal">
-    <form onsubmit="doSubmit(event)">
+    <form name="booking" netlify netlify-honeypot="bot-field" onsubmit="doSubmit(event)">
+      <input type="hidden" name="form-name" value="booking"/>
+      <input type="hidden" name="bot-field"/>
       <div class="fgrid">
-        <div class="fg"><label class="flbl">姓名</label><input type="text" class="finput" placeholder="請輸入您的姓名" required /></div>
-        <div class="fg"><label class="flbl">聯絡電話</label><input type="tel" class="finput" placeholder="請輸入聯絡電話" required /></div>
-        <div class="fg"><label class="flbl">預訂日期</label><input type="date" class="finput" required /></div>
+        <div class="fg"><label class="flbl">姓名</label><input name="姓名" type="text" class="finput" placeholder="請輸入您的姓名" required /></div>
+        <div class="fg"><label class="flbl">聯絡電話</label><input name="電話" type="tel" class="finput" placeholder="請輸入聯絡電話" required /></div>
+        <div class="fg">
+          <label class="flbl">預訂日期</label>
+          <input name="日期" type="date" class="finput" id="dateInput" required />
+          <span class="date-note">＊ 僅接受明日（含）以後之預訂，當日恕不受理</span>
+        </div>
         <div class="fg">
           <label class="flbl">預訂時間</label>
-          <select class="fsel">
-            <option>18:00</option><option>18:30</option><option>19:00</option>
-            <option>19:30</option><option>20:00</option><option>20:30</option><option>21:00</option>
+          <select name="時間" class="fsel">
+            <option>20:00</option><option>20:30</option><option>21:00</option><option>21:30</option>
+            <option>22:00</option><option>22:30</option><option>23:00</option><option>23:30</option>
+            <option>00:00</option><option>00:30</option><option>01:00</option><option>01:30</option>
+            <option>02:00</option><option>02:30</option><option>03:00</option><option>03:30</option>
+            <option>04:00</option><option>04:30</option><option>05:00</option><option>05:30</option>
+            <option>06:00</option>
           </select>
         </div>
         <div class="fg">
           <label class="flbl">用餐人數</label>
-          <select class="fsel">
+          <select name="人數" class="fsel">
             <option>2 位</option><option>3 位</option><option>4 位</option>
             <option>5–6 位</option><option>7–10 位</option><option>10 位以上</option>
           </select>
         </div>
-        <div class="fg">
-          <label class="flbl">體驗方案</label>
-          <select class="fsel">
-            <option>標準體驗方案</option>
-            <option>尊享 5D 沉浸方案</option>
-            <option>御品 VIP 專屬方案</option>
-          </select>
+        <div class="fg full">
+          <label class="flbl">訂位類型</label>
+          <div class="radio-group">
+            <label class="radio-card" id="rc-cadre">
+              <input type="radio" name="訂位幹部" value="幹部帶位" onchange="onBookingTypeChange(this)" required />
+              <span class="radio-indicator"></span>
+              <span class="radio-text">
+                <span class="radio-main">幹部帶位</span>
+                <span class="radio-hint">由本館幹部引薦入席，請填寫幹部姓名</span>
+              </span>
+            </label>
+            <label class="radio-card" id="rc-company">
+              <input type="radio" name="訂位幹部" value="公司直接預訂" onchange="onBookingTypeChange(this)" />
+              <span class="radio-indicator"></span>
+              <span class="radio-text">
+                <span class="radio-main">公司直接預訂</span>
+                <span class="radio-hint">無幹部帶位，敬請選擇此項</span>
+              </span>
+            </label>
+          </div>
+          <div class="cadre-field" id="cadre-field">
+            <input name="幹部姓名" id="cadre-name" type="text" class="finput" placeholder="請輸入幹部姓名" style="margin-top:0" />
+          </div>
         </div>
         <div class="fg full">
           <label class="flbl">特殊需求（選填）</label>
-          <textarea class="ftxt" placeholder="例如：過敏食材、特殊慶典安排、座位偏好等..."></textarea>
+          <textarea name="備註" class="ftxt" placeholder="例如：特殊慶典安排、座位偏好等..."></textarea>
         </div>
       </div>
       <button type="submit" class="fsub" id="fsub">確認訂位</button>
@@ -1305,17 +1386,62 @@ function glitch(){
 }
 setTimeout(glitch, 4000);
 
+
+/* ── DATE MIN ── */
+const di = document.getElementById('dateInput');
+if(di){
+  const tom = new Date();
+  tom.setDate(tom.getDate() + 1);
+  const y = tom.getFullYear();
+  const m = String(tom.getMonth() + 1).padStart(2,'0');
+  const d = String(tom.getDate()).padStart(2,'0');
+  di.min = `${y}-${m}-${d}`;
+}
+
+const WORKER_URL = 'https://yu13.love02210825.workers.dev';
+
+/* ── BOOKING TYPE TOGGLE ── */
+function onBookingTypeChange(el) {
+  document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('checked'));
+  el.closest('.radio-card').classList.add('checked');
+  const field = document.getElementById('cadre-field');
+  const input = document.getElementById('cadre-name');
+  if (el.value === '幹部帶位') {
+    field.classList.add('open');
+    input.required = true;
+  } else {
+    field.classList.remove('open');
+    input.required = false;
+    input.value = '';
+  }
+}
+
 /* ── FORM SUBMIT ── */
 function doSubmit(e){
   e.preventDefault();
-  const btn=document.getElementById('fsub');
-  btn.textContent='訂位確認中...';
-  btn.disabled=true;
-  setTimeout(()=>{
-    btn.textContent='✓ 訂位成功！我們將盡速與您聯繫';
-    btn.style.background='linear-gradient(135deg,#1a7a4a,#22a06b)';
-    btn.style.boxShadow='0 4px 20px rgba(26,122,74,.4)';
-  },1500);
+  const btn = document.getElementById('fsub');
+  const form = e.target;
+  btn.textContent = '訂位確認中...';
+  btn.disabled = true;
+
+  const fd = new FormData(form);
+  const data = {};
+  fd.forEach((v, k) => { if (k !== 'form-name' && k !== 'bot-field' && v.trim() !== '') data[k] = v; });
+
+  fetch(WORKER_URL + '/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(r => {
+    if (!r.ok) throw new Error(r.status);
+    btn.textContent = '✓ 訂位成功！我們將盡速與您聯繫';
+    btn.style.background = 'linear-gradient(135deg,#1a7a4a,#22a06b)';
+    btn.style.boxShadow = '0 4px 20px rgba(26,122,74,.4)';
+    form.reset();
+  }).catch(()=>{
+    btn.textContent = '提交失敗，請重試';
+    btn.disabled = false;
+  });
 }
 </script>
 </body>

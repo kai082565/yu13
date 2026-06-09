@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+  <title>御13 訂位管理</title>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#07030E"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="御13管理"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=Orbitron:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    :root{
+      --bg:#07030E;--bg2:#0F071C;--bg3:#160D28;
+      --pm:#5B21B6;--pb:#7C3AED;--pl:#A855F7;
+      --gm:#D4AF37;--gb:#F0C830;
+      --cream:#F5F0E8;--t2:rgba(240,235,224,.72);--t3:rgba(240,235,224,.42);
+      --border:rgba(124,58,237,.22);--borderg:rgba(212,175,55,.28);
+      --green:#22C55E;--red:#EF4444;--orange:#F59E0B;
+    }
+    html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--cream);font-family:'Noto Sans TC',sans-serif}
+
+    /* ── SETUP SCREEN ── */
+    #setup{
+      position:fixed;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;padding:2rem;
+      background:var(--bg);z-index:100;
+    }
+    .setup-logo{
+      font-family:'Noto Serif TC',serif;font-size:3.5rem;font-weight:700;
+      background:linear-gradient(135deg,#D4AF37,#F0C830);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      filter:drop-shadow(0 0 20px rgba(212,175,55,.6));
+      margin-bottom:.4rem;
+    }
+    .setup-sub{
+      font-family:'Orbitron',sans-serif;font-size:.65rem;color:var(--gm);
+      letter-spacing:.3em;text-transform:uppercase;margin-bottom:3rem;
+    }
+    .setup-box{
+      width:100%;max-width:360px;
+      background:rgba(15,7,28,.9);border:1px solid var(--border);
+      border-radius:12px;padding:2rem;position:relative;overflow:hidden;
+    }
+    .setup-box::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--pm),var(--gm));
+    }
+    .setup-title{
+      font-family:'Noto Serif TC',serif;font-size:1.1rem;font-weight:600;
+      color:var(--cream);margin-bottom:.4rem;
+    }
+    .setup-desc{font-size:.82rem;color:var(--t3);line-height:1.7;margin-bottom:1.8rem}
+    .setup-label{font-size:.78rem;color:var(--t2);letter-spacing:.1em;margin-bottom:.4rem;display:block}
+    .setup-input{
+      width:100%;background:rgba(91,33,182,.08);border:1px solid var(--border);
+      border-radius:6px;padding:.75rem 1rem;color:var(--cream);
+      font-family:'Noto Sans TC',sans-serif;font-size:.9rem;
+      outline:none;transition:border-color .3s;margin-bottom:1.2rem;
+    }
+    .setup-input:focus{border-color:var(--pl);background:rgba(91,33,182,.14)}
+    .setup-btn{
+      width:100%;padding:.9rem;
+      background:linear-gradient(135deg,var(--pm),var(--pb));
+      color:var(--cream);border:none;border-radius:8px;
+      font-family:'Noto Sans TC',sans-serif;font-size:1rem;font-weight:600;
+      cursor:pointer;transition:all .3s;
+    }
+    .setup-btn:active{transform:scale(.98)}
+    .setup-help{
+      margin-top:1.4rem;padding:1rem;
+      background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);
+      border-radius:8px;font-size:.78rem;color:var(--t2);line-height:1.9;
+    }
+    .setup-help a{color:var(--gm);text-decoration:none}
+
+    /* ── MAIN APP ── */
+    #app{position:fixed;inset:0;display:flex;flex-direction:column;display:none}
+
+    /* Header */
+    .app-header{
+      padding:env(safe-area-inset-top, 16px) 1.2rem 1rem;
+      padding-top:calc(env(safe-area-inset-top, 16px) + 1rem);
+      background:rgba(15,7,28,.95);border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      flex-shrink:0;backdrop-filter:blur(20px);
+    }
+    .app-logo-text{
+      font-family:'Noto Serif TC',serif;font-size:1.2rem;font-weight:700;
+      background:linear-gradient(135deg,var(--gm),var(--gb));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .app-logo-sub{
+      font-family:'Orbitron',sans-serif;font-size:.5rem;color:rgba(212,175,55,.55);
+      letter-spacing:.2em;text-transform:uppercase;margin-top:.1rem;
+    }
+    .header-right{display:flex;gap:.6rem;align-items:center}
+    .icon-btn{
+      width:38px;height:38px;border-radius:50%;
+      background:rgba(91,33,182,.15);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;transition:all .3s;font-size:1.1rem;
+    }
+    .icon-btn:active{transform:scale(.9);background:rgba(91,33,182,.3)}
+
+    /* Stats Bar */
+    .stats-bar{
+      display:flex;padding:.9rem 1.2rem;gap:.8rem;
+      background:rgba(7,3,14,.6);border-bottom:1px solid var(--border);
+      flex-shrink:0;overflow-x:auto;scrollbar-width:none;
+    }
+    .stats-bar::-webkit-scrollbar{display:none}
+    .stat-chip{
+      display:flex;flex-direction:column;align-items:center;
+      background:rgba(15,7,28,.8);border:1px solid var(--border);
+      border-radius:10px;padding:.6rem 1rem;min-width:80px;flex-shrink:0;
+    }
+    .stat-chip-val{
+      font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:600;
+      background:linear-gradient(135deg,var(--gm),var(--gb));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      line-height:1;
+    }
+    .stat-chip-lbl{font-size:.65rem;color:var(--t3);letter-spacing:.06em;margin-top:.25rem;white-space:nowrap}
+
+    /* Filter Tabs */
+    .filter-tabs{
+      display:flex;padding:.8rem 1.2rem;gap:.6rem;
+      background:var(--bg2);border-bottom:1px solid var(--border);
+      flex-shrink:0;overflow-x:auto;scrollbar-width:none;
+    }
+    .filter-tabs::-webkit-scrollbar{display:none}
+    .ftab{
+      padding:.42rem .95rem;border-radius:100px;
+      border:1px solid var(--border);background:transparent;
+      color:var(--t3);font-family:'Noto Sans TC',sans-serif;
+      font-size:.8rem;cursor:pointer;transition:all .3s;white-space:nowrap;
+    }
+    .ftab.on{
+      background:linear-gradient(135deg,rgba(91,33,182,.4),rgba(212,175,55,.15));
+      border-color:var(--gm);color:var(--gm);
+    }
+
+    /* Booking List */
+    .booking-list{
+      flex:1;overflow-y:auto;padding:1rem 1.2rem;
+      padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 1rem);
+    }
+    .booking-list::-webkit-scrollbar{width:3px}
+    .booking-list::-webkit-scrollbar-thumb{background:rgba(212,175,55,.2);border-radius:2px}
+
+    .empty-state{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      height:100%;gap:1rem;color:var(--t3);
+    }
+    .empty-icon{font-size:3rem}
+    .empty-text{font-size:.9rem;letter-spacing:.05em}
+
+    /* Booking Card */
+    .bcard{
+      background:rgba(15,7,28,.85);border:1px solid var(--border);
+      border-radius:12px;margin-bottom:.85rem;overflow:hidden;
+      transition:all .3s;position:relative;
+    }
+    .bcard:active{transform:scale(.98)}
+    .bcard-top{
+      display:flex;align-items:stretch;
+    }
+    .bcard-date{
+      background:linear-gradient(180deg,rgba(91,33,182,.3),rgba(30,10,62,.5));
+      padding:1rem .9rem;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;min-width:72px;flex-shrink:0;
+      border-right:1px solid var(--border);
+    }
+    .bdate-d{
+      font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:700;
+      color:var(--gb);line-height:1;
+    }
+    .bdate-m{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:600;color:var(--gm);letter-spacing:.04em;margin-top:.3rem;line-height:1}
+    .bdate-wd{font-size:.65rem;color:rgba(212,175,55,.5);margin-top:.3rem}
+    .bcard-info{flex:1;padding:.9rem 1rem}
+    .bcard-name{
+      font-family:'Noto Serif TC',serif;font-size:1.05rem;font-weight:600;
+      color:var(--cream);margin-bottom:.4rem;letter-spacing:.05em;
+    }
+    .bcard-meta{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.5rem}
+    .bpill{
+      padding:.22rem .65rem;border-radius:100px;
+      font-size:.72rem;letter-spacing:.04em;white-space:nowrap;
+    }
+    .bpill.time{background:rgba(91,33,182,.2);border:1px solid rgba(91,33,182,.4);color:var(--pl)}
+    .bpill.guests{background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);color:var(--gm)}
+    .bpill.type{background:rgba(15,7,28,.8);border:1px solid var(--border);color:var(--t2)}
+    .bcard-phone{
+      font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--t2);
+      letter-spacing:.06em;
+    }
+    .bcard-notes{
+      font-size:.8rem;color:var(--t3);line-height:1.7;
+      margin-top:.5rem;padding:.5rem .7rem;
+      background:rgba(91,33,182,.06);border-radius:6px;
+      border-left:2px solid rgba(212,175,55,.3);
+    }
+    .bcard-status{
+      position:absolute;top:.9rem;right:.9rem;
+      width:8px;height:8px;border-radius:50%;
+    }
+    .bcard-status.upcoming{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.6)}
+    .bcard-status.today{background:var(--orange);box-shadow:0 0 8px rgba(245,158,11,.6)}
+    .bcard-status.past{background:rgba(255,255,255,.2)}
+    .bcard-footer{
+      padding:.6rem 1rem;border-top:1px solid var(--border);
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .bcard-time-ago{font-size:.7rem;color:var(--t3);letter-spacing:.04em}
+    .bcard-call{
+      padding:.35rem .9rem;border-radius:100px;
+      background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);
+      color:var(--green);font-size:.75rem;cursor:pointer;
+      text-decoration:none;transition:all .3s;
+    }
+    .bcard-call:active{background:rgba(34,197,94,.3)}
+
+    /* Loading */
+    .loading{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      height:100%;gap:1rem;
+    }
+    .spinner{
+      width:40px;height:40px;border:3px solid rgba(212,175,55,.15);
+      border-top-color:var(--gm);border-radius:50%;
+      animation:spin 1s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-text{font-size:.85rem;color:var(--t3);letter-spacing:.1em}
+
+    /* Selection mode */
+    .bcard.selected{
+      border-color:var(--gm);
+      background:rgba(212,175,55,.08);
+      box-shadow:0 0 0 2px rgba(212,175,55,.3);
+    }
+    .bcard.selecting{cursor:pointer}
+    .bcheck{
+      position:absolute;top:.9rem;left:.9rem;
+      width:22px;height:22px;border-radius:50%;
+      border:2px solid var(--border);
+      background:rgba(15,7,28,.8);
+      display:none;align-items:center;justify-content:center;
+      font-size:.8rem;transition:all .2s;flex-shrink:0;
+    }
+    .selecting .bcheck{display:flex}
+    .selected .bcheck{
+      background:var(--gm);border-color:var(--gm);color:var(--bg);font-weight:700;
+    }
+    .selecting .bcard-status{display:none}
+
+    /* Complete bar */
+    .complete-bar{
+      position:fixed;bottom:0;left:0;right:0;
+      padding:1rem 1.5rem calc(env(safe-area-inset-bottom,0px) + 1rem);
+      background:rgba(15,7,28,.97);border-top:1px solid var(--borderg);
+      backdrop-filter:blur(20px);
+      display:flex;align-items:center;justify-content:space-between;
+      transform:translateY(100%);transition:transform .3s ease;z-index:500;
+    }
+    .complete-bar.show{transform:translateY(0)}
+    .complete-count{font-size:.85rem;color:var(--t2);letter-spacing:.05em}
+    .complete-actions{display:flex;gap:.8rem}
+    .btn-cancel-sel{
+      padding:.6rem 1.2rem;border-radius:100px;
+      background:rgba(255,255,255,.06);border:1px solid var(--border);
+      color:var(--t2);font-size:.85rem;cursor:pointer;
+    }
+    .btn-complete{
+      padding:.6rem 1.4rem;border-radius:100px;
+      background:linear-gradient(135deg,var(--gm),var(--gb));
+      border:none;color:var(--bg);font-size:.85rem;font-weight:700;
+      cursor:pointer;letter-spacing:.05em;
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed;bottom:calc(env(safe-area-inset-bottom, 0px) + 5rem);
+      left:50%;transform:translateX(-50%) translateY(100px);
+      background:rgba(15,7,28,.95);border:1px solid var(--border);
+      border-radius:100px;padding:.6rem 1.4rem;
+      font-size:.82rem;color:var(--cream);letter-spacing:.05em;
+      transition:transform .3s ease;white-space:nowrap;
+      backdrop-filter:blur(20px);z-index:999;
+    }
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* Logout confirm */
+    .overlay{
+      position:fixed;inset:0;background:rgba(7,3,14,.85);
+      display:none;align-items:center;justify-content:center;
+      z-index:200;padding:2rem;
+    }
+    .overlay.show{display:flex}
+    .overlay-box{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:16px;padding:2rem;text-align:center;max-width:300px;width:100%;
+    }
+    .overlay-title{font-family:'Noto Serif TC',serif;font-size:1.1rem;color:var(--cream);margin-bottom:.6rem}
+    .overlay-desc{font-size:.85rem;color:var(--t2);margin-bottom:1.5rem;line-height:1.7}
+    .overlay-btns{display:flex;gap:.8rem}
+    .obtn{
+      flex:1;padding:.8rem;border-radius:8px;border:none;
+      font-family:'Noto Sans TC',sans-serif;font-size:.9rem;cursor:pointer;transition:all .3s;
+    }
+    .obtn.cancel{background:rgba(91,33,182,.15);border:1px solid var(--border);color:var(--t2)}
+    .obtn.confirm{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff}
+    .obtn:active{transform:scale(.97)}
+  </style>
+</head>
+<body>
+
+<!-- Setup Screen -->
+<div id="setup">
+  <div class="setup-logo">御13</div>
+  <div class="setup-sub">Reservation Manager</div>
+  <div class="setup-box">
+    <div class="setup-title">御13 訂位管理</div>
+    <div class="setup-desc">請輸入密碼</div>
+    <input class="setup-input" id="inp-secret" type="password" autocomplete="off"/>
+    <button class="setup-btn" onclick="doSetup()">進入管理後台</button>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <div class="app-header">
+    <div>
+      <div class="app-logo-text">御13 訂位管理</div>
+      <div class="app-logo-sub">YU 13 · RESERVATION SYSTEM</div>
+    </div>
+    <div class="header-right">
+      <div class="icon-btn" id="push-btn" onclick="togglePush()" title="推播通知">🔔</div>
+      <div class="icon-btn" onclick="loadBookings()" title="重新整理">🔄</div>
+      <div class="icon-btn" onclick="showLogout()" title="登出">⚙️</div>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-chip"><div class="stat-chip-val" id="s-today">0</div><div class="stat-chip-lbl">今日訂位</div></div>
+    <div class="stat-chip"><div class="stat-chip-val" id="s-week">0</div><div class="stat-chip-lbl">本週訂位</div></div>
+    <div class="stat-chip"><div class="stat-chip-val" id="s-total">0</div><div class="stat-chip-lbl">總計訂位</div></div>
+  </div>
+
+  <div class="filter-tabs">
+    <button class="ftab on" onclick="setFilter('all',this)">全部</button>
+    <button class="ftab" onclick="setFilter('today',this)">今日</button>
+  </div>
+
+  <div class="booking-list" id="booking-list">
+    <div class="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">載入訂位資料中...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Complete Bar -->
+<div class="complete-bar" id="complete-bar">
+  <div class="complete-count" id="complete-count">已選 0 筆</div>
+  <div class="complete-actions">
+    <button class="btn-cancel-sel" onclick="cancelSelection()">取消</button>
+    <button class="btn-complete" onclick="completeSelected()">✓ 完成</button>
+  </div>
+</div>
+
+<!-- Logout Overlay -->
+<div class="overlay" id="logout-overlay">
+  <div class="overlay-box">
+    <div class="overlay-title">重設設定</div>
+    <div class="overlay-desc">清除後需重新輸入 Netlify 資訊</div>
+    <div class="overlay-btns">
+      <button class="obtn cancel" onclick="hideLogout()">取消</button>
+      <button class="obtn confirm" onclick="doLogout()">確認清除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let allBookings = [];
+let currentFilter = 'all';
+let selectMode = false;
+let selectedIds = new Set();
+
+const VAPID_PUBLIC = 'BEvgsRYUTa7eMhDcRQ1e__CexvjYfjlX6DvgT6DiEI6bbHUQFzpobotjuRRskL8uCy7EQv69vIm-oC1v0TFtLAA';
+
+const WORKER_URL = 'https://yu13.love02210825.workers.dev';
+const ADMIN_SECRET = 'yu13admin';
+function getWorkerUrl() { return WORKER_URL; }
+function getSecret() { return ADMIN_SECRET; }
+
+/* ── SETUP ── */
+function doSetup() {
+  const pw = document.getElementById('inp-secret').value;
+  if (pw !== ADMIN_SECRET) { showToast('密碼錯誤'); return; }
+  localStorage.setItem('ready', '1');
+  startApp();
+}
+
+let pollTimer = null;
+
+function startApp() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  sendConfigToSW();
+  loadBookings();
+  updatePushBtn();
+  startPolling();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(pollTimer);
+    } else {
+      loadBookings();
+      startPolling();
+    }
+  });
+}
+
+function startPolling() {
+  clearInterval(pollTimer);
+  pollTimer = setInterval(loadBookings, 5000);
+}
+
+function sendConfigToSW() {
+  if (navigator.serviceWorker?.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'config',
+      workerUrl: getWorkerUrl(),
+      adminSecret: getSecret()
+    });
+  }
+}
+
+/* ── LOAD BOOKINGS ── */
+async function loadBookings() {
+  const wu = getWorkerUrl();
+  if (!wu) return;
+  try {
+    const res = await fetch(`${wu}/bookings`, {
+      headers: { 'X-Admin-Secret': getSecret() }
+    });
+    if (!res.ok) throw new Error(res.status);
+    const raw = await res.json();
+    allBookings = raw.map(b => ({ id: b.id, data: b.data, created_at: b.created_at }));
+    updateStats(allBookings);
+    renderBookings(allBookings, currentFilter);
+  } catch(e) {
+    showToast('⚠ 無法取得資料，請確認設定');
+    renderError();
+  }
+}
+
+/* ── PUSH NOTIFICATIONS ── */
+async function updatePushBtn() {
+  const btn = document.getElementById('push-btn');
+  if (!btn || !('Notification' in window)) return;
+  const perm = Notification.permission;
+  if (perm === 'granted') {
+    const sw = await navigator.serviceWorker.ready;
+    const sub = await sw.pushManager.getSubscription();
+    btn.textContent = sub ? '🔔' : '🔕';
+    btn.title = sub ? '推播已開啟' : '點擊開啟推播';
+  } else {
+    btn.textContent = '🔕';
+    btn.title = '點擊開啟推播';
+  }
+}
+
+async function togglePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    showToast('此瀏覽器不支援推播，請使用 Chrome 或 Safari 16.4+'); return;
+  }
+  const sw = await navigator.serviceWorker.ready;
+  const existing = await sw.pushManager.getSubscription();
+
+  if (existing) {
+    await existing.unsubscribe();
+    await fetch(`${getWorkerUrl()}/subscribe`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(existing)
+    });
+    showToast('已關閉推播通知');
+    document.getElementById('push-btn').textContent = '🔕';
+    return;
+  }
+
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { showToast('請允許通知權限'); return; }
+
+  const sub = await sw.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC)
+  });
+
+  await fetch(`${getWorkerUrl()}/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(sub)
+  });
+
+  showToast('推播通知已開啟！');
+  document.getElementById('push-btn').textContent = '🔔';
+}
+
+function urlB64ToUint8Array(b64) {
+  const s = (b64 + '='.repeat((4 - b64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(s);
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+
+/* ── STATS ── */
+function updateStats(bookings) {
+  const now = new Date();
+  const today = toDateStr(now);
+  const weekLater = new Date(now); weekLater.setDate(weekLater.getDate() + 7);
+
+  let todayCount = 0, weekCount = 0;
+  bookings.forEach(b => {
+    const d = b.data?.['日期'] || '';
+    if (d === today) todayCount++;
+    if (d >= today && d <= toDateStr(weekLater)) weekCount++;
+  });
+
+  document.getElementById('s-today').textContent = todayCount;
+  document.getElementById('s-week').textContent = weekCount;
+  document.getElementById('s-total').textContent = bookings.length;
+}
+
+/* ── RENDER ── */
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  renderBookings(allBookings, f);
+}
+
+function renderBookings(bookings, filter) {
+  const now = new Date();
+  const today = toDateStr(now);
+  const list = document.getElementById('booking-list');
+
+  // Sort newest date first
+  let sorted = [...bookings].sort((a, b) => {
+    const da = a.data?.['日期'] || '';
+    const db = b.data?.['日期'] || '';
+    return db.localeCompare(da);
+  });
+
+  // Filter
+  if (filter === 'today') sorted = sorted.filter(b => b.data?.['日期'] === today);
+  else if (filter === 'upcoming') sorted = sorted.filter(b => b.data?.['日期'] > today);
+  else if (filter === 'past') sorted = sorted.filter(b => b.data?.['日期'] < today);
+
+  if (sorted.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">目前沒有訂位記錄</div></div>`;
+    return;
+  }
+
+  list.innerHTML = sorted.map(b => buildCard(b, today)).join('');
+}
+
+function buildCard(b, today) {
+  const d = b.data || {};
+  const dateStr = d['日期'] || '';
+  const phone = d['電話'] || '';
+  const name = d['姓名'] || '未填寫';
+  const time = d['時間'] || '';
+  const guests = d['人數'] || '';
+  const type = d['訂位幹部'] || '';
+  const cadreName = d['幹部姓名'] || '';
+  const notes = d['備註'] || '';
+  const created = new Date(b.created_at);
+
+  // Date parts
+  let dayNum = '', monthStr = '', weekday = '';
+  if (dateStr) {
+    const parts = dateStr.split('-');
+    dayNum = parts[2] || '';
+    monthStr = parts[1] ? parts[1] + '月' : '';
+    const wds = ['日','一','二','三','四','五','六'];
+    const dObj = new Date(dateStr + 'T12:00:00');
+    weekday = '週' + wds[dObj.getDay()];
+  }
+
+  // Status
+  let status = 'past', statusClass = 'past';
+  if (dateStr === today) { status = '今日'; statusClass = 'today'; }
+  else if (dateStr > today) { status = '即將'; statusClass = 'upcoming'; }
+  else { status = '已過'; }
+
+  // Time ago
+  const mins = Math.floor((Date.now() - created) / 60000);
+  let ago = mins < 60 ? `${mins} 分鐘前訂位` : mins < 1440 ? `${Math.floor(mins/60)} 小時前訂位` : `${Math.floor(mins/1440)} 天前訂位`;
+
+  const bid = b.id || '';
+  const selClass = selectMode ? 'selecting' : '';
+  const checkedClass = selectedIds.has(bid) ? 'selected' : '';
+  return `
+    <div class="bcard ${selClass} ${checkedClass}" id="card-${bid}"
+      ontouchstart="onCardTouchStart(event,'${bid}')"
+      ontouchend="onCardTouchEnd(event)"
+      ontouchmove="onCardTouchMove()"
+      onclick="onCardClick(event,'${bid}')">
+      <div class="bcheck">${selectedIds.has(bid) ? '✓' : ''}</div>
+      <div class="bcard-status ${statusClass}"></div>
+      <div class="bcard-top">
+        <div class="bcard-date">
+          <div class="bdate-d">${dayNum}</div>
+          <div class="bdate-m">${monthStr}</div>
+          <div class="bdate-wd">${weekday}</div>
+        </div>
+        <div class="bcard-info">
+          <div class="bcard-name">${name}</div>
+          <div class="bcard-meta">
+            ${time ? `<span class="bpill time">🕐 ${time}</span>` : ''}
+            ${guests ? `<span class="bpill guests">👥 ${guests}</span>` : ''}
+            ${type ? `<span class="bpill type">${type}</span>` : ''}
+            ${cadreName ? `<span class="bpill type">👤 ${cadreName}</span>` : ''}
+          </div>
+          ${phone ? `<div class="bcard-phone">📞 ${phone}</div>` : ''}
+          ${notes ? `<div class="bcard-notes">💬 ${notes}</div>` : ''}
+        </div>
+      </div>
+      <div class="bcard-footer">
+        <div class="bcard-time-ago">${ago}</div>
+        ${!selectMode && phone ? `<a class="bcard-call" href="tel:${phone}">撥打電話</a>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderError() {
+  document.getElementById('booking-list').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">⚠️</div>
+      <div class="empty-text">無法連接，請檢查網路或設定</div>
+    </div>`;
+}
+
+/* ── UTILS ── */
+function toDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ── SELECTION ── */
+let longPressTimer = null;
+let touchMoved = false;
+
+function onCardTouchStart(e, id) {
+  touchMoved = false;
+  longPressTimer = setTimeout(() => {
+    if (!touchMoved) {
+      if (!selectMode) enterSelectMode();
+      toggleSelect(id);
+    }
+  }, 500);
+}
+function onCardTouchEnd(e) { clearTimeout(longPressTimer); }
+function onCardTouchMove() { touchMoved = true; clearTimeout(longPressTimer); }
+
+function onCardClick(e, id) {
+  if (!selectMode) return;
+  e.preventDefault();
+  toggleSelect(id);
+}
+
+function enterSelectMode() {
+  selectMode = true;
+  renderBookings(allBookings, currentFilter);
+}
+
+function toggleSelect(id) {
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+
+  const card = document.getElementById('card-' + id);
+  if (card) {
+    card.classList.toggle('selected', selectedIds.has(id));
+    const check = card.querySelector('.bcheck');
+    if (check) check.textContent = selectedIds.has(id) ? '✓' : '';
+  }
+
+  const bar = document.getElementById('complete-bar');
+  const count = selectedIds.size;
+  if (count > 0) {
+    bar.classList.add('show');
+    document.getElementById('complete-count').textContent = `已選 ${count} 筆`;
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+function cancelSelection() {
+  selectMode = false;
+  selectedIds.clear();
+  document.getElementById('complete-bar').classList.remove('show');
+  renderBookings(allBookings, currentFilter);
+}
+
+async function completeSelected() {
+  if (!selectedIds.size) return;
+  const ids = [...selectedIds];
+  try {
+    await fetch(`${getWorkerUrl()}/bookings/delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Secret': getSecret() },
+      body: JSON.stringify({ ids })
+    });
+    allBookings = allBookings.filter(b => !ids.includes(b.id));
+    cancelSelection();
+    updateStats(allBookings);
+    renderBookings(allBookings, currentFilter);
+    showToast(`✓ 已完成 ${ids.length} 筆訂位`);
+  } catch {
+    showToast('操作失敗，請重試');
+  }
+}
+
+function showLogout() { document.getElementById('logout-overlay').classList.add('show'); }
+function hideLogout() { document.getElementById('logout-overlay').classList.remove('show'); }
+function doLogout() {
+  localStorage.removeItem('ready');
+  location.reload();
+}
+
+/* ── INIT ── */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(() => {
+    if (localStorage.getItem('ready')) startApp();
+  });
+} else {
+  if (localStorage.getItem('ready')) startApp();
+}
+</script>
+</body>
+</html>
