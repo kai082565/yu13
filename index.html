@@ -862,6 +862,119 @@
       max-height:0;transition:max-height .35s ease,opacity .3s ease;opacity:0;
     }
     .cadre-field.open{max-height:80px;opacity:1}
+
+    /* ── GALLERY ── */
+    #gallery{padding:8rem 4rem 6rem;max-width:1200px;margin:0 auto}
+    .gal-inner{position:relative}
+    .gal-track{
+      display:flex;
+      overflow-x:scroll;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+      border-radius:8px;
+    }
+    .gal-track::-webkit-scrollbar{display:none}
+    .gal-slide{flex:0 0 100%;scroll-snap-align:start}
+    .gal-media-box{
+      position:relative;width:100%;
+      aspect-ratio:16/9;
+      background:rgba(5,1,16,.95);
+      border-radius:8px;
+      overflow:hidden;
+      border:1px solid var(--border);
+    }
+    .gal-media-box img,
+    .gal-media-box video{
+      position:absolute;inset:0;
+      width:100%;height:100%;
+      object-fit:contain;
+      display:block;
+    }
+    .gal-media-box iframe{
+      position:absolute;inset:0;
+      width:100%;height:100%;
+      border:0;display:block;
+    }
+    .gal-ph{
+      position:absolute;inset:0;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:.8rem;
+      color:rgba(255,255,255,.2);
+      font-size:.78rem;letter-spacing:.18em;
+    }
+    .gal-ph-icon{font-size:2.4rem;opacity:.4;line-height:1}
+    .gal-caption{
+      text-align:center;padding:.8rem 1rem 0;
+      font-size:.82rem;color:var(--t2);
+      letter-spacing:.1em;font-family:'Noto Serif TC',serif;
+    }
+    .gal-btn{
+      position:absolute;top:44%;transform:translateY(-50%);
+      width:42px;height:42px;border-radius:50%;
+      background:rgba(7,3,14,.85);
+      border:1px solid rgba(212,175,55,.35);
+      color:var(--gb);font-size:1.4rem;line-height:1;
+      cursor:pointer;z-index:10;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .25s;backdrop-filter:blur(10px);
+      padding:0;
+    }
+    .gal-btn:hover{background:rgba(91,33,182,.75);border-color:var(--gm);box-shadow:0 0 14px rgba(212,175,55,.3)}
+    .gal-btn:disabled{opacity:.18;cursor:default;pointer-events:none}
+    .gal-prev{left:.7rem}
+    .gal-next{right:.7rem}
+    .gal-dots{
+      display:flex;justify-content:center;align-items:center;
+      gap:.5rem;padding:1.4rem 0 0;
+    }
+    .gal-dot{
+      width:6px;height:6px;border-radius:3px;
+      background:rgba(212,175,55,.2);
+      cursor:pointer;transition:all .32s;
+      border:none;padding:0;
+    }
+    .gal-dot.active{width:22px;background:var(--gm);box-shadow:0 0 8px rgba(212,175,55,.35)}
+
+    /* empty state */
+    .gal-empty{
+      border:1px solid var(--borderg);border-radius:8px;
+      padding:5.5rem 2rem;text-align:center;
+      background:radial-gradient(ellipse 80% 100% at 50% 50%,rgba(91,33,182,.07) 0%,transparent 70%);
+      position:relative;overflow:hidden;
+    }
+    .gal-empty::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(212,175,55,.5),transparent);
+    }
+    .gal-empty::after{
+      content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(124,58,237,.4),transparent);
+    }
+    .gal-empty-deco{
+      font-size:1.1rem;color:var(--gm);opacity:.45;
+      letter-spacing:.6em;margin-bottom:2rem;
+    }
+    .gal-empty-title{
+      font-family:'Noto Serif TC',serif;font-size:clamp(1.5rem,3vw,2rem);
+      font-weight:600;color:var(--cream);letter-spacing:.22em;margin-bottom:.65rem;
+    }
+    .gal-empty-sub{
+      font-size:.9rem;color:var(--t2);letter-spacing:.12em;
+      font-family:'Noto Serif TC',serif;margin-bottom:1.6rem;
+    }
+    .gal-empty-en{
+      font-family:'Rajdhani',sans-serif;font-size:.7rem;
+      letter-spacing:.45em;color:rgba(212,175,55,.35);text-transform:uppercase;
+    }
+
+    @media(max-width:1024px){#gallery{padding:6rem 2rem 4rem}}
+    @media(max-width:768px){
+      #gallery{padding:5rem 1rem 3.5rem}
+      .gal-btn{width:34px;height:34px;font-size:1.15rem}
+      .gal-empty{padding:3.5rem 1.5rem}
+      .gal-media-box{aspect-ratio:9/16}
+    }
   </style>
 </head>
 <body>
@@ -889,6 +1002,7 @@
   <button class="mc" id="mc">✕</button>
   <a href="#about"   onclick="closeMM()">關於我們</a>
   <a href="#exp"     onclick="closeMM()">沉浸體驗</a>
+  <a href="#gallery" onclick="closeMM()">活動精選</a>
   <a href="#rsv"     onclick="closeMM()">立即訂位</a>
 </div>
 
@@ -904,6 +1018,7 @@
   <ul class="nv">
     <li><a href="#about">關於我們</a></li>
     <li><a href="#exp">沉浸體驗</a></li>
+    <li><a href="#gallery">活動精選</a></li>
     <li><a href="#rsv" class="ncta">立即訂位</a></li>
   </ul>
   <div class="hbg" id="hbg"><span></span><span></span><span></span></div>
@@ -1089,6 +1204,59 @@
   </div>
 </section>
 
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="sh reveal">
+    <div class="stag">Events · Gallery</div>
+    <h2 class="stitle">活動<span>精選</span></h2>
+    <div class="sdiv"></div>
+    <p class="sdesc">留下每一刻美好時光，與我們共同創造難忘回憶</p>
+  </div>
+  <div class="gal-inner">
+    <div class="gal-track" id="galTrack">
+
+      <div class="gal-slide">
+        <div class="gal-media-box">
+          <img src="照片/photo-1.webp" alt="活動精彩瞬間" />
+        </div>
+        <div class="gal-caption">活動精彩瞬間</div>
+      </div>
+
+      <div class="gal-slide">
+        <div class="gal-media-box">
+          <video src="照片/video-1.mp4" controls playsinline preload="metadata" autoplay muted loop></video>
+        </div>
+        <div class="gal-caption">歡樂時刻</div>
+      </div>
+
+      <div class="gal-slide">
+        <div class="gal-media-box">
+          <video src="照片/video-2.mp4" controls playsinline preload="metadata" autoplay muted loop></video>
+        </div>
+        <div class="gal-caption">沉浸體驗現場</div>
+      </div>
+
+      <div class="gal-slide">
+        <div class="gal-media-box">
+          <video src="照片/video-3.mp4" controls playsinline preload="metadata" autoplay muted loop></video>
+        </div>
+        <div class="gal-caption">精彩活動回顧</div>
+      </div>
+
+      <div class="gal-slide">
+        <div class="gal-media-box">
+          <video src="照片/video-4.mp4" controls playsinline preload="metadata" autoplay muted loop></video>
+        </div>
+        <div class="gal-caption">餐酒館日常</div>
+      </div>
+
+    </div>
+    <button class="gal-btn gal-prev" id="galPrev" aria-label="上一張">&#8249;</button>
+    <button class="gal-btn gal-next" id="galNext" aria-label="下一張">&#8250;</button>
+  </div>
+  <div class="gal-dots" id="galDots"></div>
+</section>
+
 <!-- EXPERIENCE -->
 <section id="exp">
   <div class="ew">
@@ -1252,6 +1420,7 @@
       <ul>
         <li><a href="#about">關於御13</a></li>
         <li><a href="#exp">沉浸體驗</a></li>
+        <li><a href="#gallery">活動精選</a></li>
         <li><a href="#rsv">立即訂位</a></li>
       </ul>
     </div>
@@ -1453,6 +1622,59 @@ function doSubmit(e){
     btn.disabled = false;
   });
 }
+
+/* ── GALLERY CAROUSEL ── */
+(function(){
+  const track = document.getElementById('galTrack');
+  const dotsEl = document.getElementById('galDots');
+  const prevBtn = document.getElementById('galPrev');
+  const nextBtn = document.getElementById('galNext');
+  if(!track) return;
+  const slides = track.querySelectorAll('.gal-slide');
+  const total = slides.length;
+  let cur = 0;
+  for(let i = 0; i < total; i++){
+    const d = document.createElement('button');
+    d.className = 'gal-dot' + (i===0 ? ' active' : '');
+    d.setAttribute('aria-label', '第'+(i+1)+'張');
+    d.addEventListener('click', ()=>goTo(i));
+    dotsEl.appendChild(d);
+  }
+  function goTo(idx){
+    cur = Math.max(0, Math.min(idx, total-1));
+    track.scrollTo({left: track.clientWidth * cur, behavior:'smooth'});
+    sync();
+  }
+  function sync(){
+    dotsEl.querySelectorAll('.gal-dot').forEach((d,i)=>d.classList.toggle('active', i===cur));
+    prevBtn.disabled = cur===0;
+    nextBtn.disabled = cur===total-1;
+    track.querySelectorAll('video').forEach((v,i)=>{
+      const slideIdx = Array.from(slides).indexOf(v.closest('.gal-slide'));
+      if(slideIdx===cur){ v.play().catch(()=>{}); }
+      else { v.pause(); }
+    });
+  }
+  prevBtn.addEventListener('click', ()=>goTo(cur-1));
+  nextBtn.addEventListener('click', ()=>goTo(cur+1));
+  let st;
+  track.addEventListener('scroll', ()=>{
+    clearTimeout(st);
+    st = setTimeout(()=>{
+      cur = Math.round(track.scrollLeft / track.clientWidth);
+      sync();
+    }, 60);
+  }, {passive:true});
+  document.addEventListener('keydown', e=>{
+    const sec = document.getElementById('gallery');
+    if(!sec) return;
+    const r = sec.getBoundingClientRect();
+    if(r.top > window.innerHeight || r.bottom < 0) return;
+    if(e.key==='ArrowLeft') goTo(cur-1);
+    else if(e.key==='ArrowRight') goTo(cur+1);
+  });
+  sync();
+})();
 </script>
 </body>
 </html>
